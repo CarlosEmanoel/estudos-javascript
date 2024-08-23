@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora Simples</title>
+    <style>
+        .calculator {
+            width: 300px;
+            margin: 100px auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(255, 255, 255, 0.1);
+            justify-content: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .display {
+            width: 100%;
+            height: 50px;
+            font-size: 24px;
+            text-align: right;
+            margin-bottom: 10px;
+            padding: 10px;
+            box-sizing: border-box;
+            transition: background-color 0.3s ease;
+            user-select: none;
+        }
+
+        .button {
+            user-select: none;
+            width: 70px;
+            height: 50px;
+            font-size: 18px;
+            cursor: pointer;
+        }
+
+        .n-button {
+            background-color: #ccc;
+            width: 70px;
+            height: 50px;
+            font-size: 18px;
+            cursor: pointer;
+        }
+
+        .history {
+            width: 100%;
+            margin-top: 10px;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            height: 100px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="calculator">
+        <div style="display: flex; justify-content: space-between; width: 100%;">
+            <input type="text" class="display" id="display" disabled>
+            <input type="text" class="display" id="op-display" style="width: 40px;" disabled>
+        </div>
+        <div style="display: flex; justify-content: space-between; width: 100%;">
+            <button class="n-button" onclick="appendNumber('1')">1</button>
+            <button class="n-button" onclick="appendNumber('2')">2</button>
+            <button class="n-button" onclick="appendNumber('3')">3</button>
+            <button class="button" onclick="chooseOperator('+')">+</button>
+        </div>
+        <div style="display: flex; justify-content: space-between; width: 100%; margin-top: 6px;">
+            <button class="n-button" onclick="appendNumber('4')">4</button>
+            <button class="n-button" onclick="appendNumber('5')">5</button>
+            <button class="n-button" onclick="appendNumber('6')">6</button>
+            <button class="button" onclick="chooseOperator('-')">-</button>
+        </div>
+        <div style="display: flex; justify-content: space-between; width: 100%; margin-top: 6px;">
+            <button class="n-button" onclick="appendNumber('7')">7</button>
+            <button class="n-button" onclick="appendNumber('8')">8</button>
+            <button class="n-button" onclick="appendNumber('9')">9</button>
+            <button class="button" onclick="chooseOperator('*')">X</button>
+        </div>
+        <div style="display: flex; justify-content: space-between; width: 100%; margin-top: 6px;">
+            <button class="button" onclick="clearDisplay()">C</button>
+            <button class="n-button" onclick="appendNumber('0')">0</button>
+            <button class="button" onclick="compute()">=</button>
+            <button class="button" onclick="chooseOperator('/')">/</button>
+        </div>
+        <div style="display: flex; justify-content: space-between; width: 100%; margin-top: 6px;">
+            <button class="button" onclick="toggleNegative()">±</button>
+            <button class="button" onclick="computeSquareRoot()">√</button>
+        </div>
+        <div class="history" id="history">
+            <strong>Histórico:</strong>
+        </div>
+    </div>
+
+    <script>
+        let currentNumber = '';
+        let previousNumber = '';
+        let operator = '';
+        let justComputed = false;
+
+        function appendNumber(number) {
+            if (justComputed) {
+                currentNumber = '';
+                justComputed = false;
+                document.getElementById('display').style.backgroundColor = 'white';
+            }
+            currentNumber += number;
+            document.getElementById('display').value = currentNumber;
+        }
+
+        function chooseOperator(op) {
+            if (currentNumber === '' && previousNumber === '') return;
+            if (previousNumber !== '' && currentNumber !== '') {
+                compute(); 
+            }
+
+            operator = op;
+            previousNumber = currentNumber || previousNumber;
+            currentNumber = '';
+
+            document.getElementById('op-display').value = operator;
+        }
+
+        function clearDisplay() {
+            currentNumber = '';
+            previousNumber = '';
+            operator = '';
+            justComputed = false;
+            document.getElementById('display').value = '';
+            document.getElementById('op-display').value = '';
+            document.getElementById('display').style.backgroundColor = 'white';
+        }
+
+        function compute() {
+            let computation;
+            const prev = parseFloat(previousNumber);
+            const current = parseFloat(currentNumber);
+            if (isNaN(prev) || isNaN(current)) return;
+
+            switch (operator) {
+                case '+':
+                    computation = prev + current;
+                    break;
+                case '-':
+                    computation = prev - current;
+                    break;
+                case '*':
+                    computation = prev * current;
+                    break;
+                case '/':
+                    computation = prev / current;
+                    break;
+                default:
+                    return;
+            }
+            
+            addToHistory(prev, operator, current, computation);
+            currentNumber = computation;
+            operator = '';
+            previousNumber = '';
+            justComputed = true;
+
+            document.getElementById('display').value = currentNumber;
+            document.getElementById('op-display').value = '';
+            document.getElementById('display').style.backgroundColor = '#d3ffd3'; /* Resposta visual, indicando que o cálculo foi feito */
+        }
+
+        function computeSquareRoot() {
+            const current = parseFloat(currentNumber);
+            if (isNaN(current)) return;
+
+            currentNumber = Math.sqrt(current);
+            previousNumber = '';
+            operator = '';
+            justComputed = true;
+
+            document.getElementById('display').value = currentNumber;
+            document.getElementById('op-display').value = '√';
+            document.getElementById('display').style.backgroundColor = '#d3ffd3'; /* Resposta visual, indicando que o cálculo foi feito */
+
+            addToHistory('√', current, '', currentNumber);
+        }
+
+        function toggleNegative() {
+            if (currentNumber === '') return;
+
+            currentNumber = currentNumber.startsWith('-') ? currentNumber.slice(1) : '-' + currentNumber;
+            document.getElementById('display').value = currentNumber;
+        }
+
+        function addToHistory(prev, op = operator, current, result) {
+            const historyDiv = document.getElementById('history');
+            const newHistoryItem = document.createElement('div');
+            newHistoryItem.textContent = `${prev} ${op} ${current} = ${result}`;
+            historyDiv.appendChild(newHistoryItem);
+            historyDiv.scrollTop = historyDiv.scrollHeight;
+        }
+    </script>
+</body>
+
+</html>

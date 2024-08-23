@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/ionicons/5.5.2/ionicons.min.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Hello World</title>
+</head>  
+
+<style>
+    * {
+        background-color: blanchedalmond;
+        justify-content: center;
+        user-select: none;
+    }
+</style>
+
+<body>
+    <div id="root" style="justify-content: center; align-items: center; display: flex; flex-direction: column;">
+        <h1>Olá!</h1>
+        <h2>javascript & html</h2>
+        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
+            <h1 class="result"></h1>
+            <div>
+                <input type="text" placeholder="Insira a Tarefa" class="task-input" />
+                <button style="width: 100px;" class="todo-add">Adicionar Tarefa</button>
+                <div id="task-view" class="task-view"></div>
+            </div>
+        </div>
+    </div>
+    <script>
+        let todoAdd = document.querySelector('.todo-add');
+
+        todoAdd.addEventListener("click", () => {
+            let task = document.querySelector(".task-input").value.trim();
+            if (task === "") return;  // Evita adicionar tarefas vazias
+
+            // Criação de um novo parágrafo
+            let taskView = document.createElement("p");
+
+            // Adiciona o conteúdo da tarefa
+            taskView.innerHTML = `<span class="task-number"></span>. ${task} <button onclick="removeTask(this)">Remover</button>`;
+
+            // Adiciona o parágrafo ao elemento com ID "task-view"
+            document.getElementById("task-view").appendChild(taskView);
+
+            // Limpa o campo de input
+            document.querySelector('.task-input').value = '';
+
+            // Atualiza a numeração das tarefas
+            updateTaskNumbers();
+        });
+
+        function removeTask(button) {
+            // Remove a tarefa ao clicar no botão de remover
+            let taskView = button.parentElement;
+            taskView.remove();
+
+            // Atualiza a numeração das tarefas após a remoção
+            updateTaskNumbers();
+        }
+
+        function updateTaskNumbers() {
+            // Seleciona todas as tarefas atuais
+            let tasks = document.querySelectorAll("#task-view p");
+
+            // Atualiza a numeração de cada tarefa
+            tasks.forEach((task, index) => {
+                let taskNumber = task.querySelector('.task-number');
+                taskNumber.textContent = index + 1;
+            });
+        }
+    </script>
+</body>
+
+</html>
